@@ -9,4 +9,15 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server:{
+    proxy: {
+      '/api': {
+        target: "http://api.farm.0531yun.cn",
+        changeOrigin: true,
+        rewrite: (path) => {
+          return path.replace('/api', '/api')
+        }
+      }
+    }
+  }
 })

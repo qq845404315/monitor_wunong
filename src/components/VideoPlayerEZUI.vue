@@ -272,7 +272,10 @@ export default {
         this.$emit('ended');
       });
     },
-
+    toggleToPlay() {
+      if (!this.player) return;
+      this.player.play();
+    },
     togglePlay() {
       if (!this.player) return;
 
@@ -285,13 +288,8 @@ export default {
 
     toggleMute() {
       if (!this.player) return;
-
-      if (this.isMuted) {
-        this.player.unmute();
-      } else {
-        this.player.mute();
-      }
       this.isMuted = !this.isMuted;
+      this.player.muted  = this.isMuted;
     },
 
     requestFullscreen() {

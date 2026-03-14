@@ -177,16 +177,16 @@
       <div class="monitor-grid">
         <!-- 监控1: 使用EZUIPlayer（自动获取Token） -->
         <div class="monitor-box">
-          <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
+          <!-- <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
             :deviceSerial="ysConfig.deviceSerial1" :deviceId="1" :label="ysConfig.label1 || '核心种植区1'"
-            @tokenReady="onTokenReady" @error="handleMonitorError(1)" ref="monitor1" />
+            @tokenReady="onTokenReady" @error="handleMonitorError(1)" ref="monitor1" /> -->
         </div>
 
         <!-- 监控2: 使用EZUIPlayer（自动获取Token） -->
         <div class="monitor-box">
-          <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
+          <!-- <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
             :deviceSerial="ysConfig.deviceSerial2" :deviceId="2" :label="ysConfig.label2 || '核心种植区2'"
-            @tokenReady="onTokenReady" @error="handleMonitorError(2)" ref="monitor2" />
+            @tokenReady="onTokenReady" @error="handleMonitorError(2)" ref="monitor2" /> -->
         </div>
       </div>
 
@@ -252,6 +252,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import VideoPlayerEZUI from './components/VideoPlayerEZUI.vue';
+import { getDeviceList, getRealTimeData } from '@/api/device/index.js'
 import * as echarts from 'echarts';
 
 import ysApi from './utils/ysApi';
@@ -262,15 +263,15 @@ let map = null;
 
 // 时间相关
 const currentTime = ref('');
-
+const currentDate = ref('')
 // 设备数据
 const devices = ref([
-  { id: 1, name: '气象站', icon: 'fas fa-cloud-sun', value: 24.5, unit: '℃', status: 'online', statusText: '在线', location: '核心区A', installTime: '2022-03-15', lastMaintenance: '2023-09-20' },
-  { id: 2, name: '虫情分析仪', icon: 'fas fa-bug', value: 3, unit: '只/天', status: 'online', statusText: '在线', location: '核心区B', installTime: '2022-04-10', lastMaintenance: '2023-10-05' },
-  { id: 3, name: '孢子分析仪', icon: 'fas fa-virus', value: 12, unit: '个/m³', status: 'online', statusText: '在线', location: '加工区', installTime: '2022-05-20', lastMaintenance: '2023-09-28' },
-  { id: 4, name: '土壤墒情', icon: 'fas fa-tint', value: 68, unit: '%', status: 'online', statusText: '在线', location: '灌溉区', installTime: '2022-03-10', lastMaintenance: '2023-10-10' },
-  { id: 5, name: '光照传感器', icon: 'fas fa-sun', value: 42000, unit: 'lux', status: 'online', statusText: '在线', location: '育苗区', installTime: '2022-06-01', lastMaintenance: '2023-09-15' },
-  { id: 6, name: '摄像头', icon: 'fas fa-video', value: 12, unit: '路', status: 'online', statusText: '在线', location: '茶园各区域', installTime: '2022-02-28', lastMaintenance: '2023-10-08' }
+  { id: 1, name: '气象站', icon: 'fas fa-cloud-sun', value: 24.5, unit: '℃', status: 'online', statusText: '在线', location: '核心区A', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 2, name: '虫情分析仪', icon: 'fas fa-bug', value: 3, unit: '只/天', status: 'online', statusText: '在线', location: '核心区B', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 3, name: '孢子分析仪', icon: 'fas fa-virus', value: 12, unit: '个/m³', status: 'online', statusText: '在线', location: '核心区C', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 4, name: '土壤墒情', icon: 'fas fa-tint', value: 68, unit: '%', status: 'online', statusText: '在线', location: '灌溉区', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 5, name: '光照传感器', icon: 'fas fa-sun', value: 42000, unit: 'lux', status: 'online', statusText: '在线', location: '育苗区', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 6, name: '摄像头', icon: 'fas fa-video', value: 4, unit: '路', status: 'online', statusText: '在线', location: '茶园各区域', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] }
 ]);
 const chayuanInfo = ref({
   name: '吴侬碧螺春有机茶园',
@@ -320,7 +321,8 @@ const activeControl = ref('all');
 // 视频统计
 const videoStats = ref({
   count: 4,
-  duration: '24h'
+  duration: '24h',
+  sensorCount: 85
 });
 
 // 选中的设备
@@ -347,31 +349,56 @@ const updateTime = () => {
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const seconds = String(now.getSeconds()).padStart(2, '0');
-
+  currentDate.value = `${year}-${month}-${day}`
   currentTime.value = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
-
+// 通用的平均值计算函数
+const calculateAverageOfField = (array, fieldName) => {
+  if (array.length === 0) return 0;
+  const numericValues = array
+    .map(item => parseFloat(item[fieldName]))
+    .filter(value => !isNaN(value)); // 过滤掉非数值
+  
+  if (numericValues.length === 0) return 0;
+  
+  const sum = numericValues.reduce((total, value) => total + value, 0);
+  return sum / numericValues.length;
+}
 const updateDeviceData = () => {
-  devices.value.forEach(device => {
-    if (device.id === 1) { // 气象站
-      device.value = (24.5 + (Math.random() - 0.5) * 0.5).toFixed(1);
-      environment.value.temp = parseFloat(device.value);
-    } else if (device.id === 2) { // 虫情分析仪
-      device.value = Math.max(0, Math.round(3 + (Math.random() - 0.5) * 2));
-    } else if (device.id === 3) { // 孢子分析仪
-      device.value = Math.max(5, Math.round(12 + (Math.random() - 0.5) * 10));
-    } else if (device.id === 4) { // 土壤墒情
-      device.value = Math.round(68 + (Math.random() - 0.5) * 5);
-      environment.value.humidity = device.value;
-    } else if (device.id === 5) { // 光照传感器
-      device.value = Math.round(42000 + (Math.random() - 0.5) * 5000);
-    }
-  });
-
-  // 更新环境数据
-  environment.value.ions = Math.round(186 + (Math.random() - 0.5) * 10);
-  const airQualities = ['优', '良', '轻度污染', '中度污染'];
-  environment.value.airQuality = airQualities[Math.floor(Math.random() * 2)]; // 优或良
+  getRealTimeData().then(res => {
+      let data = res.data
+      let tempArray = []
+      let liumingArray = []
+      data.forEach(item => {
+        let nodeData = item.data
+        if (item.deviceType === 'met') {
+          tempArray.push(nodeData.find(node => node.nodeId === 11));
+          liumingArray.push(nodeData.find(node => node.nodeId === 15));
+        }
+      })
+      let tempValue = parseFloat(calculateAverageOfField(tempArray, 'temValue').toFixed(1));  
+      let liumingValue = parseFloat(calculateAverageOfField(liumingArray, 'temValue').toFixed(0));
+      console.log(tempValue);
+      devices.value.forEach(device => {
+        if (device.id === 1) { // 气象站
+          device.value = (tempValue + (Math.random() - 0.5) * 0.5).toFixed(1);
+          environment.value.temp = parseFloat(device.value);
+        } else if (device.id === 2) { // 虫情分析仪
+          device.value = Math.max(0, Math.round(3 + (Math.random() - 0.5) * 2));
+        } else if (device.id === 3) { // 孢子分析仪
+          device.value = Math.max(5, Math.round(12 + (Math.random() - 0.5) * 10));
+        } else if (device.id === 4) { // 土壤墒情
+          device.value = Math.round(68 + (Math.random() - 0.5) * 5);
+          environment.value.humidity = device.value;
+        } else if (device.id === 5) { // 光照传感器
+          device.value = Math.round(liumingValue + (Math.random() - 0.5) * 5000);
+        }
+      });
+      // 更新环境数据
+      environment.value.ions = Math.round(186 + (Math.random() - 0.5) * 10);
+      const airQualities = ['优', '良', '轻度污染', '中度污染'];
+      environment.value.airQuality = airQualities[Math.floor(Math.random() * 2)]; // 优或良
+    })
 };
 
 const selectDevice = (device) => {
@@ -402,8 +429,8 @@ const setActiveControl = (controlId) => {
   switch (controlId) {
     case 'all':
       // 全部播放
-      if (monitor1.value) monitor1.value.togglePlay();
-      if (monitor2.value) monitor2.value.togglePlay();
+      if (monitor1.value) monitor1.value.toggleToPlay();
+      if (monitor2.value) monitor2.value.toggleToPlay();
       break;
     case 'pause':
       // 全部暂停
@@ -514,7 +541,7 @@ const initMap = () => {
   map = new BMap.Map("baidu-map");
 
   // 设置中心点坐标（苏州东山镇）
-  const centerPoint = new BMap.Point(120.409, 31.098);
+  const centerPoint = new BMap.Point(120.389, 31.085);
 
   // 初始化地图，设置缩放级别
   map.centerAndZoom(centerPoint, 15);
@@ -539,33 +566,36 @@ const initMap = () => {
     map.openInfoWindow(infoWindow, centerPoint);
   });
 
-  // 添加多个设备标记点
-  const points = [
-    { lng: 120.402, lat: 31.102, name: "茶园入口", type: "监控", deviceId: 6 },       // 向下调整
-    { lng: 120.412, lat: 31.110, name: "核心区A", type: "气象站", deviceId: 1 },      // 向下调整
-    { lng: 120.417, lat: 31.103, name: "核心区B", type: "虫情分析仪", deviceId: 2 },   // 向下调整
-    { lng: 120.407, lat: 31.111, name: "加工区", type: "孢子分析仪", deviceId: 3 },    // 向下调整
-    { lng: 120.415, lat: 31.109, name: "灌溉区", type: "土壤墒情", deviceId: 4 },      // 向下调整
-    { lng: 120.401, lat: 31.107, name: "育苗区", type: "光照传感器", deviceId: 5 }      // 向下调整
-  ];
+  // 添加圆形覆盖物（茶园范围）
+  const circle = new BMap.Circle(centerPoint, 1500, {
+    fillColor: "#00f2fe",
+    fillOpacity: 0.1,
+    strokeOpacity: 0.3,
+    strokeColor: "#00f2fe",
+    strokeWeight: 1
+  });
+  map.addOverlay(circle);
+};
 
-  points.forEach((point, index) => {
+const setPointPosition = (point) => {
     const pt = new BMap.Point(point.lng, point.lat);
     const marker = new BMap.Marker(pt);
-
-    // 根据设备类型设置不同颜色
-    let iconColor = "#00f2fe"; // 默认蓝色
-    if (point.type === "气象站") iconColor = "#00f2fe";
-    if (point.type === "虫情分析仪") iconColor = "#ff6b6b";
-    if (point.type === "孢子分析仪") iconColor = "#9c88ff";
-    if (point.type === "监控") iconColor = "#4cd137";
-    if (point.type === "土壤墒情") iconColor = "#4facfe";
-    if (point.type === "光照传感器") iconColor = "#fbc531";
+    // 根据设备类型选择不同的图标
+    let iconPath = "/images/met.png"; // 默认图标
+    if (point.type === "气象站") iconPath = "/images/met.png";
+    if (point.type === "虫情分析仪") iconPath = "/images/wormFlagship.png";
+    if (point.type === "孢子分析仪") iconPath = "/images/spore.png";
+    if (point.type === "监控") iconPath = "/images/camera.png";
+    if (point.type === "土壤墒情") iconPath = "/images/spore.png";
+    if (point.type === "光照传感器") iconPath = "/images/met.png";
 
     // 添加自定义图标
     const icon = new BMap.Icon(
-      `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='${encodeURIComponent(iconColor)}'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E`,
-      new BMap.Size(24, 24)
+      iconPath,
+      new BMap.Size(24, 24),
+      {
+        imageSize: new BMap.Size(24, 24)
+      }
     );
     marker.setIcon(icon);
     map.addOverlay(marker);
@@ -577,18 +607,7 @@ const initMap = () => {
         selectDevice(device);
       }
     });
-  });
-
-  // 添加圆形覆盖物（茶园范围）
-  const circle = new BMap.Circle(centerPoint, 1500, {
-    fillColor: "#00f2fe",
-    fillOpacity: 0.1,
-    strokeOpacity: 0.3,
-    strokeColor: "#00f2fe",
-    strokeWeight: 1
-  });
-  map.addOverlay(circle);
-};
+}
 // 设备详情图表
 const initDeviceChart = () => {
   const chartDom = document.getElementById('deviceChart');
@@ -705,13 +724,31 @@ onMounted(() => {
   // 初始化时间
   updateTime();
   setInterval(updateTime, 1000);
-
-  // 初始化设备数据更新
-  setInterval(updateDeviceData, 5000);
-
+  
   // 初始化地图
   setTimeout(initMap, 300);
-
+  setTimeout(() => {
+    getDeviceList().then(res => {
+      let data = res.data
+      devices.value[0].list = data.filter(item => item.deviceType === "met")
+      devices.value[1].list = data.filter(item => item.deviceType === "wormFlagship")
+      devices.value[2].list = data.filter(item => item.deviceType === "spore")
+      data.forEach(item => {
+        if(item.devicelng === 0 || item.devicelat === 0) return
+        let point = {
+          lng: item.devicelng,
+          lat: item.devicelat,
+          name: item.deviceName,
+          type: item.deviceType === "met" ? "气象站" : item.deviceType === "wormFlagship" ? "虫情分析仪" : item.deviceType === "spore" ? "孢子分析仪" : "监控",
+          deviceId: item.deviceType === "met" ? 1 : item.deviceType === "wormFlagship" ? 2 : item.deviceType === "spore" ? 3 : 6,
+        }
+        setPointPosition(point)
+      })
+    })
+  }, 3000)
+  // 初始化设备数据更新
+  updateDeviceData();
+  // setInterval(updateDeviceData, 15000);
   // 从localStorage加载配置
   try {
     const savedConfig = localStorage.getItem('ysConfig');
