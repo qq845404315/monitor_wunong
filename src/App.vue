@@ -424,6 +424,12 @@ const updateDeviceData = () => {
           windSpeedValue,
           currentTime: currentTime.value
       })
+      
+      // 限制metData长度不超过3000，超出时删除最旧的数据
+      if (metData.length > 3000) {
+        metData = metData.slice(-3000); // 保留最新的3000条数据
+      }
+      
       setMetData(JSON.stringify(metData))
       devices.value.forEach(device => {
         if (device.id === 1) { // 气象站
