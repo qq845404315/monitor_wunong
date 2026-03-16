@@ -255,7 +255,7 @@
           <span class="detail-label">当前读数</span>
           <span class="detail-value">{{ selectedDeviceDetail.value }}{{ selectedDeviceDetail.unit }}</span>
         </div>
-        <div class="detail-chart" id="deviceChart"></div>
+        <div v-show="selectedDeviceDetail.id != 6" class="detail-chart" id="deviceChart"></div>
       </div>
     </div>
   </div>
@@ -277,28 +277,9 @@ let map = null;
 // 时间相关
 const currentTime = ref('');
 const currentDate = ref('')
-// 设备数据
-const devices = ref([
-  { id: 1, name: '气象站', icon: 'fas fa-cloud-sun', value: 24.5, unit: '℃', status: 'online', statusText: '在线', location: '核心区A', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
-  { id: 2, name: '虫情分析仪', icon: 'fas fa-bug', value: 3, unit: '只/天', status: 'online', statusText: '在线', location: '核心区B', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
-  { id: 3, name: '孢子分析仪', icon: 'fas fa-virus', value: 12, unit: '个/m³', status: 'online', statusText: '在线', location: '核心区C', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
-  { id: 4, name: '土壤墒情', icon: 'fas fa-tint', value: 68, unit: '%', status: 'online', statusText: '在线', location: '灌溉区', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
-  { id: 5, name: '光照传感器', icon: 'fas fa-sun', value: 42000, unit: 'lux', status: 'online', statusText: '在线', location: '育苗区', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
-  { id: 6, name: '摄像头', icon: 'fas fa-video', value: 4, unit: '路', status: 'online', statusText: '在线', location: '茶园各区域', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] }
-]);
-const chayuanInfo = ref({
-  name: '吴侬碧螺春有机茶园',
-  location: '江苏省苏州市吴中区东山镇',
-  area: 350,
-  plantingDate: '2022-01-01',
-  status: '正常',
-  teabrand: '小叶种碧螺春',
-  pickingTime: '2026-03-20 至 2026-04-10',
-  processingCompany: '苏州市吴侬茶业有限公司',
-  qualityReport: '已验证 ✓',
-  blockchainStatus: '已上链 ✓',
-  plantingStandard: '有机认证'
-});
+
+let metData = getMetData()
+
 // 环境数据
 const environment = ref({
   temp: 24.5,
@@ -309,6 +290,37 @@ const environment = ref({
   windSpeed: 2.5,
   wind: 2,
 });
+if (metData.length > 0) {
+  environment.value.temp = metData[metData.length - 1].tempValue;
+  environment.value.humidity = metData[metData.length - 1].humValue;
+  environment.value.ions = metData[metData.length - 1].ionsValue;
+  environment.value.co2 = metData[metData.length - 1].co2Value;
+  environment.value.windSpeed = metData[metData.length - 1].windSpeedValue;
+  environment.value.wind = metData[metData.length - 1].windValue;
+}
+// 设备数据
+const devices = ref([
+  { id: 1, name: '气象站', icon: 'fas fa-cloud-sun', value: environment.value.temp, unit: '℃', status: 'online', statusText: '在线', location: '核心区A', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 2, name: '虫情分析仪', icon: 'fas fa-bug', value: 3, unit: '只/天', status: 'online', statusText: '在线', location: '核心区B', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 3, name: '孢子分析仪', icon: 'fas fa-virus', value: 12, unit: '个/m³', status: 'online', statusText: '在线', location: '核心区C', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 4, name: '土壤墒情', icon: 'fas fa-tint', value: 68, unit: '%', status: 'online', statusText: '在线', location: '生长区', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 5, name: '光照传感器', icon: 'fas fa-sun', value: 42000, unit: 'lux', status: 'online', statusText: '在线', location: '生长区', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] },
+  { id: 6, name: '摄像头', icon: 'fas fa-video', value: 4, unit: '路', status: 'online', statusText: '在线', location: '茶园各区域', installTime: '2024-11-15', lastMaintenance: currentDate.value, list:[] }
+]);
+const chayuanInfo = ref({
+  name: '吴侬碧螺春有机茶园',
+  location: '苏州市吴中区东山镇碧螺村',
+  area: 350,
+  plantingDate: '2022-01-01',
+  status: '正常',
+  teabrand: '小叶种碧螺春',
+  pickingTime: '2026-03-20 至 2026-04-10',
+  processingCompany: '苏州市东山吴侬碧螺春茶叶专业合作社',
+  qualityReport: '已验证 ✓',
+  blockchainStatus: '已上链 ✓',
+  plantingStandard: '有机认证'
+});
+
 
 // 萤石云配置
 const ysConfig = ref({
@@ -355,7 +367,6 @@ const onlineRate = computed(() => {
   const onlineCount = devices.value.filter(d => d.status === 'online').length;
   return ((onlineCount / devices.value.length) * 100).toFixed(1);
 });
-let metData = getMetData()
 
 // 方法
 const updateTime = () => {
