@@ -370,18 +370,22 @@ const updateDeviceData = () => {
       let tempArray = []
       let liumingArray = []
       let ionsArray = []
+      let tintArray = []
       data.forEach(item => {
         let nodeData = item.data
         if (item.deviceType === 'met') {
           tempArray.push(nodeData.find(node => node.nodeId === 11));
           liumingArray.push(nodeData.find(node => node.nodeId === 15));
           ionsArray.push(nodeData.find(node => node.nodeId === 31));
+          tintArray.push(nodeData.find(node => node.nodeId === 3));
         }
       })
       let tempValue = parseFloat(calculateAverageOfField(tempArray, 'temValue').toFixed(1)); 
       let humValue = parseFloat(calculateAverageOfField(tempArray, 'humValue').toFixed(1));
       let liumingValue = parseFloat(calculateAverageOfField(liumingArray, 'temValue').toFixed(0));
       let ionsValue = parseFloat(calculateAverageOfField(ionsArray, 'temValue').toFixed(0));
+      let tintValue = parseFloat(calculateAverageOfField(tintArray, 'humValue').toFixed(0));
+
       devices.value.forEach(device => {
         if (device.id === 1) { // 气象站
           device.value = (tempValue + (Math.random() - 0.5) * 0.5).toFixed(1);
@@ -391,14 +395,14 @@ const updateDeviceData = () => {
         } else if (device.id === 3) { // 孢子分析仪
           device.value = Math.max(5, Math.round(12 + (Math.random() - 0.5) * 10));
         } else if (device.id === 4) { // 土壤墒情
-          device.value = Math.round(68 + (Math.random() - 0.5) * 5);
+          device.value = Math.round(tintValue + (Math.random() - 0.5) * 5);
         } else if (device.id === 5) { // 光照传感器
           device.value = Math.round(liumingValue + (Math.random() - 0.5) * 5000);
         }
       });
       // 更新环境数据
       environment.value.humidity = humValue;
-      environment.value.ions = Math.round(ionsValue + (Math.random() - 0.5) * 10);
+      environment.value.ions = Math.round(ionsValue + (Math.random() + 0.5) * 10);
       const airQualities = ['优', '良', '轻度污染', '中度污染'];
       environment.value.airQuality = airQualities[Math.floor(Math.random() * 2)]; // 优或良
     })
