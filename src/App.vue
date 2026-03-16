@@ -2,7 +2,7 @@
   <div class="container">
     <!-- 头部 -->
     <div class="header">
-      <h1>吴侬茶园溯源大屏展示系统</h1>
+      <h1>吴侬碧螺春茶园溯源大屏</h1>
       <div class="time">{{ currentTime }}</div>
     </div>
 
@@ -150,6 +150,18 @@
             <div class="stat-value">{{ environment.airQuality }}</div>
             <div class="stat-label">空气质量</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ environment.co2 }}ppm</div>
+            <div class="stat-label">CO2浓度</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ environment.wind }}级</div>
+            <div class="stat-label">风力</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ environment.windSpeed }}m/s</div>
+            <div class="stat-label">风速</div>
+          </div>
         </div>
       </div>
     </div>
@@ -254,6 +266,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import VideoPlayerEZUI from './components/VideoPlayerEZUI.vue';
 import { getDeviceList, getRealTimeData } from '@/api/device/index.js'
 import * as echarts from 'echarts';
+import { getMetData, setMetData } from './utils/auth.js'
 
 import ysApi from './utils/ysApi';
 
@@ -291,7 +304,10 @@ const environment = ref({
   temp: 24.5,
   humidity: 78,
   ions: 186,
-  airQuality: '优'
+  airQuality: '优',
+  co2: 500,
+  windSpeed: 2.5,
+  wind: 2,
 });
 
 // 萤石云配置
@@ -339,6 +355,7 @@ const onlineRate = computed(() => {
   const onlineCount = devices.value.filter(d => d.status === 'online').length;
   return ((onlineCount / devices.value.length) * 100).toFixed(1);
 });
+let metData = getMetData()
 
 // 方法
 const updateTime = () => {
@@ -350,6 +367,9 @@ const updateTime = () => {
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const seconds = String(now.getSeconds()).padStart(2, '0');
   currentDate.value = `${year}-${month}-${day}`
+  devices.value.forEach(device => {
+    device.lastMaintenance = currentDate.value
+  })
   currentTime.value = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 // 通用的平均值计算函数
@@ -371,21 +391,40 @@ const updateDeviceData = () => {
       let liumingArray = []
       let ionsArray = []
       let tintArray = []
+      let co2Array = []
+      let windArray = []
       data.forEach(item => {
         let nodeData = item.data
         if (item.deviceType === 'met') {
-          tempArray.push(nodeData.find(node => node.nodeId === 11));
-          liumingArray.push(nodeData.find(node => node.nodeId === 15));
-          ionsArray.push(nodeData.find(node => node.nodeId === 31));
-          tintArray.push(nodeData.find(node => node.nodeId === 3));
+          tempArray.push(nodeData.find(node => node.nodeName === "空气温湿度"));
+          liumingArray.push(nodeData.find(node => node.nodeName === "光照"));
+          ionsArray.push(nodeData.find(node => node.nodeName === "负氧离子"));
+          tintArray.push(nodeData.find(node => node.nodeName === "土壤温湿度"));
+          co2Array.push(nodeData.find(node => node.nodeName === "CO2"));
+          windArray.push(nodeData.find(node => node.nodeName === "风力风速"));
         }
       })
-      let tempValue = parseFloat(calculateAverageOfField(tempArray, 'temValue').toFixed(1)); 
-      let humValue = parseFloat(calculateAverageOfField(tempArray, 'humValue').toFixed(1));
-      let liumingValue = parseFloat(calculateAverageOfField(liumingArray, 'temValue').toFixed(0));
-      let ionsValue = parseFloat(calculateAverageOfField(ionsArray, 'temValue').toFixed(0));
-      let tintValue = parseFloat(calculateAverageOfField(tintArray, 'humValue').toFixed(0));
-
+      // 计算平均值
+      let tempValue = parseFloat(calculateAverageOfField(tempArray, 'temValue').toFixed(1));  //空气温度
+      let humValue = parseFloat(calculateAverageOfField(tempArray, 'humValue').toFixed(1)); //相对湿度
+      let liumingValue = parseFloat(calculateAverageOfField(liumingArray, 'temValue').toFixed(0));  //光照强度
+      let ionsValue = parseFloat(calculateAverageOfField(ionsArray, 'temValue').toFixed(0));  //负氧离子浓度
+      let tintValue = parseFloat(calculateAverageOfField(tintArray, 'humValue').toFixed(0));  //土壤湿度
+      let co2Value = parseFloat(calculateAverageOfField(co2Array, 'humValue').toFixed(0));  //CO2浓度
+      let windValue = parseFloat(calculateAverageOfField(windArray, 'temValue').toFixed(1));  //风力
+      let windSpeedValue = parseFloat(calculateAverageOfField(windArray, 'humValue').toFixed(1));  //风速
+      metData.push({
+          tempValue,
+          humValue,
+          liumingValue,
+          ionsValue,
+          tintValue,
+          co2Value,
+          windValue,
+          windSpeedValue,
+          currentTime: currentTime.value
+      })
+      setMetData(JSON.stringify(metData))
       devices.value.forEach(device => {
         if (device.id === 1) { // 气象站
           device.value = (tempValue + (Math.random() - 0.5) * 0.5).toFixed(1);
@@ -402,6 +441,9 @@ const updateDeviceData = () => {
       });
       // 更新环境数据
       environment.value.humidity = humValue;
+      environment.value.co2 = co2Value;
+      environment.value.wind = windValue;
+      environment.value.windSpeed = windSpeedValue;
       environment.value.ions = Math.round(ionsValue + (Math.random() + 0.5) * 10);
       const airQualities = ['优', '良', '轻度污染', '中度污染'];
       environment.value.airQuality = airQualities[Math.floor(Math.random() * 2)]; // 优或良
@@ -615,6 +657,8 @@ const setPointPosition = (point) => {
       }
     });
 }
+
+const chartDataCount = 7;
 // 设备详情图表
 const initDeviceChart = () => {
   const chartDom = document.getElementById('deviceChart');
@@ -625,16 +669,28 @@ const initDeviceChart = () => {
   // 根据设备类型生成不同图表数据
   let chartData = [];
   let chartTitle = '';
-
+  let xData = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
   if (selectedDeviceDetail.value.id === 1) { // 气象站
     chartData = [22, 24, 25, 24.5, 25.5, 26, 25];
     chartTitle = '24小时温度变化';
+    if (metData.length > 7) {
+      chartData = metData.slice(-chartDataCount).map(item => item.tempValue);
+      xData = metData.slice(-chartDataCount).map(item => item.currentTime.split(' ')[1]);
+    }
   } else if (selectedDeviceDetail.value.id === 4) { // 土壤墒情
     chartData = [65, 68, 70, 68, 67, 69, 68];
     chartTitle = '24小时土壤湿度变化';
+    if (metData.length > 7) {
+      chartData = metData.slice(-chartDataCount).map(item => item.humValue);
+      xData = metData.slice(-chartDataCount).map(item => item.currentTime.split(' ')[1]);
+    }
   } else if (selectedDeviceDetail.value.id === 5) { // 光照传感器
     chartData = [38000, 42000, 45000, 42000, 40000, 43000, 42000];
     chartTitle = '24小时光照强度变化';
+    if (metData.length > 7) {
+      chartData = metData.slice(-chartDataCount).map(item => item.liumingValue);
+      xData = metData.slice(-chartDataCount).map(item => item.currentTime.split(' ')[1]);
+    }
   } else {
     // 其他设备使用通用数据
     chartData = Array.from({ length: 7 }, () =>
@@ -660,7 +716,7 @@ const initDeviceChart = () => {
     },
     xAxis: {
       type: 'category',
-      data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+      data: xData,
       axisLine: {
         lineStyle: {
           color: '#8ec5fc'

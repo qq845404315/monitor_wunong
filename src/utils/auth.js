@@ -14,3 +14,10 @@ export const removeToken = () => {
   return Cookies.remove(TokenKey)
 }
 
+export const getMetData = () => {
+  return JSON.parse(localStorage.getItem('met_data')) || []
+}
+
+export const setMetData = (data) => {
+  return localStorage.setItem('met_data', data)
+}
