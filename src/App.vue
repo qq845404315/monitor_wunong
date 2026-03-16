@@ -177,16 +177,16 @@
       <div class="monitor-grid">
         <!-- 监控1: 使用EZUIPlayer（自动获取Token） -->
         <div class="monitor-box">
-          <!-- <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
+          <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
             :deviceSerial="ysConfig.deviceSerial1" :deviceId="1" :label="ysConfig.label1 || '核心种植区1'"
-            @tokenReady="onTokenReady" @error="handleMonitorError(1)" ref="monitor1" /> -->
+            @tokenReady="onTokenReady" @error="handleMonitorError(1)" ref="monitor1" />
         </div>
 
         <!-- 监控2: 使用EZUIPlayer（自动获取Token） -->
         <div class="monitor-box">
-          <!-- <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
+          <VideoPlayerEZUI :appKey="ysConfig.appKey" :appSecret="ysConfig.appSecret"
             :deviceSerial="ysConfig.deviceSerial2" :deviceId="2" :label="ysConfig.label2 || '核心种植区2'"
-            @tokenReady="onTokenReady" @error="handleMonitorError(2)" ref="monitor2" /> -->
+            @tokenReady="onTokenReady" @error="handleMonitorError(2)" ref="monitor2" />
         </div>
       </div>
 
@@ -748,7 +748,7 @@ onMounted(() => {
   }, 3000)
   // 初始化设备数据更新
   updateDeviceData();
-  // setInterval(updateDeviceData, 15000);
+  setInterval(updateDeviceData, 15000);
   // 从localStorage加载配置
   try {
     const savedConfig = localStorage.getItem('ysConfig');
