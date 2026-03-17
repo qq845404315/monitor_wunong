@@ -17,15 +17,16 @@
       ></div>
 
       <!-- 状态指示器 -->
-      <div class="video-status">
+      <div v-if="false" class="video-status">
         <span class="status-dot" :class="statusClass"></span>
         {{ statusText }}
       </div>
 
       <!-- 错误提示 -->
       <div v-if="errorMessage" class="error-message">
-        <i class="fas fa-exclamation-triangle"></i>
-        {{ errorMessage }}
+        <!-- <i class="fas fa-exclamation-triangle"></i> -->
+        <!-- {{ errorMessage }} -->
+        <img src="/images/9.jpg" alt="不在线" style="width: 100%; height: 100%">
       </div>
 
       <!-- 播放器控制栏（自定义） -->
@@ -445,17 +446,19 @@ export default {
 }
 
 .error-message {
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255, 77, 77, 0.9);
+  /* background: rgba(255, 77, 77, 0.9); */
   color: white;
   padding: 10px 15px;
   border-radius: 6px;
   font-size: 0.85rem;
   text-align: center;
-  max-width: 80%;
+  max-width: 100%;
   z-index: 15;
   display: flex;
   align-items: center;
