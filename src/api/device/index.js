@@ -27,3 +27,10 @@ export const geyCameraList = (deviceAddr) => {
     })
 }
 
+export const getSoilList = () => {
+    return service({
+        url: '/api/v2.0/soil/device/getDeviceAllInfo', // 文档中视频数据通常也通过实时接口或设备列表接口获取
+        method: 'get',
+        
+    })
+}

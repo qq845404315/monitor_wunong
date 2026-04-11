@@ -7,7 +7,7 @@
 
 body {
   background: linear-gradient(135deg, #0c1e3a 0%, #0a2a40 100%);
-  color: #e0f0ff;
+  color: #8ec5fc;
   height: 100vh;
   overflow: hidden;
 }
@@ -15,13 +15,14 @@ body {
 .container {
   display: grid;
   grid-template-columns: 1.2fr 1.8fr 1fr;
-  grid-template-rows: 80px 1fr;
+  grid-template-rows: 5rem 1fr;
   grid-template-areas:
     "header header header"
     "info map video";
   height: 100vh;
   padding: 10px;
   gap: 12px;
+  
 }
 
 /* 头部样式 */
@@ -63,23 +64,48 @@ body {
   background: rgba(15, 35, 59, 0.8);
   border: 1px solid rgba(64, 158, 255, 0.3);
   border-radius: 8px;
-  padding: 15px;
+  padding-left: 10px;
+  padding-right: 10px; 
+  padding-bottom: 10px;
+  padding-top: 0px;
   overflow-y: auto;
-  box-shadow: 0 4px 15px rgba(0, 40, 80, 0.4);
+  box-shadow: 0 1px 1px rgba(0, 40, 80, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1px;
+  justify-content: flex-start; /* 让所有子元素靠上对齐，消除自动分配的巨大间隙 */
+  gap: 12px; /* 在这里统一控制各个面板之间的固定间距，你可以根据视觉效果调整这个像素值 */
+}
+
+.device-info,
+.four-info{
+  grid-area: info;
+  background: rgba(15, 35, 59, 0.8);
+  border: 1px solid rgba(64, 158, 255, 0.3);
+  border-radius: 8px;
+  padding-left: 10px;
+  padding-right: 10px; 
+  padding-bottom: 10px;
+  padding-top: 15px;
+  overflow-y: auto;
+  box-shadow: 0 1px 1px rgba(0, 40, 80, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  justify-content: flex-start; /* 让所有子元素靠上对齐，消除自动分配的巨大间隙 */
+  gap: 12px; /* 在这里统一控制各个面板之间的固定间距，你可以根据视觉效果调整这个像素值 */
 }
 
 .panel-title {
   font-size: 1.3rem;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
+  margin-bottom: 0px; 
+  padding-bottom: 5px;
   border-bottom: 1px solid rgba(64, 158, 255, 0.3);
   color: #4facfe;
   display: flex;
   align-items: center;
   font-weight: 600;
+  /* 确保它不会继承其他容器的高 padding */
 }
 
 .panel-title::before {
@@ -92,25 +118,56 @@ body {
   border-radius: 2px;
 }
 
-.tea-info,
-.traceability,
-.device-section {
+.tea-info{
   background: rgba(10, 35, 65, 0.4);
   padding: 12px;
+  padding-bottom: 6px;
+  margin-top: 10px;
   border-radius: 8px;
   border: 1px solid rgba(64, 158, 255, 0.2);
 }
-
+.device-section，
+.panel-title {
+  background: rgba(10, 35, 65, 0.4);
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(64, 158, 255, 0.2);
+}
+.traceability{
+  background: rgba(10, 35, 65, 0.4);
+  padding: 12px;
+  margin-top: 1px;
+  border-radius: 8px;
+  border: 1px solid rgba(64, 158, 255, 0.2);
+}
 .info-item {
   display: flex;
-  margin-bottom: 8px;
-  padding: 8px;
+  margin-bottom: 1px;
+  padding: 2px;
+  background: rgba(10, 35, 65, 0.3);
+  border-radius: 4px;
+  border-left: 3px solid #00f2fe;
+}
+
+.info-item-1 {
+  display: flex;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  padding: 2px;
   background: rgba(10, 35, 65, 0.3);
   border-radius: 4px;
   border-left: 3px solid #00f2fe;
 }
 
 .info-item .label {
+  width: 100px;
+  font-weight: 500;
+  color: #8ec5fc;
+  font-size: 0.9rem;
+}
+
+.info-item-1 .label {
   width: 100px;
   font-weight: 500;
   color: #8ec5fc;
@@ -124,16 +181,24 @@ body {
   font-size: 0.9rem;
 }
 
+.info-item-1 .value {
+  flex: 1;
+  font-weight: 400;
+  color: #e0f0ff;
+  font-size: 0.9rem;
+}
+
 .traceability h3 {
   color: #00f2fe;
   margin-bottom: 10px;
+  margin-top: 6px;
   font-size: 1.1rem;
 }
 
 .trace-item {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
+  padding: 3px 0;
   border-bottom: 1px dashed rgba(64, 158, 255, 0.2);
   font-size: 0.85rem;
 }
@@ -263,19 +328,20 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 0px;
 }
 
 .device-card {
   background: rgba(5, 20, 40, 0.6);
   border-radius: 6px;
-  padding: 8px;
+  padding: 5px;
   border: 1px solid rgba(64, 158, 255, 0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: all 0.3s;
   cursor: pointer;
+  height: 100px;
 }
 
 .device-card:hover {
@@ -295,12 +361,39 @@ body {
   margin-bottom: 5px;
   color: #00f2fe;
 }
-
+/*.device-name::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #00ff9d; /* 经典的翠绿色 
+  border-radius: 50%;        /* 变成圆点 
+  margin-right: 8px;         /* 与文字的间距 
+  vertical-align: middle;    /* 垂直居中对齐 
+}*/
 .device-name {
   font-size: 0.8rem;
   color: #8ec5fc;
   text-align: center;
   margin-bottom: 4px;
+}
+
+.device-status {
+  display: flex;        /* 点和文字在一行 */
+  justify-content: center; /* 水平居中 */
+  align-items: center;   /* 垂直居中 */
+  gap: 4px;              /* 点和文字间距 */
+  margin-top: 4px;       /* 名称和状态的间距 */
+  color: #00ff9d;        /* 文字颜色 */
+  font-size: 12px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #00ff9d;
+  border-radius: 50%;
 }
 
 .device-value {
@@ -324,9 +417,9 @@ body {
   border-radius: 50%;
 }
 
-.status-online {
+/* .status-online {
   background: #00ff9d;
-}
+} */
 
 .status-offline {
   background: #ff4d4d;
@@ -414,34 +507,45 @@ body {
   padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px; /* 控制视频和下方气象模块的紧凑固定间距 */
   box-shadow: 0 4px 15px rgba(0, 40, 80, 0.4);
+  height: 100%;
+  overflow: hidden; /* ✨ 彻底禁止右侧出现滚动条 */
+}
+.video-panel video, 
+.video-container {
+  width: 60px;
+  /* 强制 16:9 比例 */
+  aspect-ratio: 14/11;
+  /* 确保视频内容在比例内自适应，不拉伸 */
+  object-fit: cover; 
+  background: #000;
+  border-radius: 4px;
+
 }
 
 /* 监控网格 */
 .monitor-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
-  flex: 1;
-  overflow: hidden;
+  /* ⚠️ 删掉这里的 height: 100%; 否则它会占据太多高度把气象往下挤 */
+  flex-shrink: 0; /* 保证视频本身高度不被压缩 */
 }
-
 .monitor-box {
-  flex: 1;
-  background: #000;
-  border-radius: 6px;
+  width: 100%; /* 固定宽度 */
+  aspect-ratio: 16 / 9; /* ✨ 改用标准的16:9比例，避免画面变形和占据过高空间 */
+  background: rgba(15, 35, 59, 0.7);
+  border: 1px solid rgba(64, 158, 255, 0.3);
+  border-radius: 4px;
   overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(64, 158, 255, 0.2);
-  min-height: 180px;
+  /* ⚠️ 删除了原有的 flex: 1 和 min-height: 120px */
 }
-
 .monitor-controls {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .monitor-btn {
@@ -544,12 +648,25 @@ body {
   border: 1px solid rgba(64, 158, 255, 0.5);
   border-radius: 12px;
   padding: 20px;
-  width: 400px;
+  width: 500px;
   z-index: 1000;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
 }
-
+.Fg{
+     position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 35, 59, 0.95);
+  border: 1px solid rgba(64, 158, 255, 0.5);
+  border-radius: 12px;
+  padding: 20px;
+  width: 1000px;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+}
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -619,4 +736,479 @@ body {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
+}
+/* 让认证弹框变得更宽更长 */
+.auth-large-modal {
+  width: 800px !important; /* 宽度加大 */
+  max-height: 90vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #0a2732;
+  border: 1px solid #00f2fe;
+}
+
+.auth-carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  position: relative;
+}
+
+.auth-image-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.full-cert-img {
+  max-width: 100%;
+  max-height: 600px; /* 控制图片高度，避免撑破屏幕 */
+  object-fit: contain;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+/* 箭头按钮样式 */
+.arrow-btn {
+  background: rgba(0, 242, 254, 0.2);
+  border: 1px solid #00f2fe;
+  color: #00f2fe;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  z-index: 10;
+}
+
+.arrow-btn:hover {
+  background: rgba(0, 242, 254, 0.5);
+}
+/* 弹窗主体：调宽至500px */
+.info-custom-modal {
+  width: 500px !important; 
+  max-width: 90vw;
+  background: rgba(10, 28, 52, 0.98) !important;
+  border: 1px solid #1a3a63;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* 列表行样式：还原截图绿色圆点 */
+.info-list {
+  padding: 10px 20px;
+  border-left: 1px dashed rgba(74, 212, 164, 0.3); /* 左侧虚线 */
+  margin-left: 15px;
+}
+
+.info-row {
+  position: relative;
+  display: flex;
+  margin-bottom: 15px;
+  align-items: flex-start;
+  color: #fff;
+  font-size: 14px;
+}
+
+.info-row .dot {
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  background: #4ad4a4;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4ad4a4;
+}
+
+.info-row label {
+  width: 80px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.info-row .val {
+  color: #fff;
+  text-align: right;
+  flex: 1;
+}
+
+/* 图片容器：改为 16:9 比例，模仿截图 */
+.photo-container {
+  position: relative;
+  width: 200px;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.main-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  color: #8ec5fc;
+  font-size: 13.6px;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.intro-text {
+  font-size: 13px;
+  color: #aaa;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* 滚动条美化 */
+.custom-scroll {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: #4ad4a4; }
+
+/* 预览层层级 */
+.preview-layer {
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.preview-box img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border: 2px solid #4ad4a4;
+}
+.preview-box p { color: #fff; text-align: center; margin-top: 10px; }
+.album-wrapper {
+  /* 移除原本的 padding，使内容能贴边 */
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden; /* 裁剪超出部分 */
+  border: 1px solid #4ad4a4;
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+}
+
+.album-header {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: #4ad4a4;
+  z-index: 10; /* 确保在图片和箭头之上 */
+  /* 为标题加一点阴影以增加清晰度 */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
+}
+
+.album-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  height: 60vh;
+}
+
+.album-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 关键点：铺满并裁剪多余部分 */
+  border: none;
+}
+.nav-btn {
+  background: rgba(10, 26, 50, 0.6);
+  border: 1px solid #4ad4a4;
+  color: #fff;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  transition: 0.3s;
+  z-index: 5;
+  margin: 0 15px; /* 增加一点左右边距 */
+}
+.nav-btn:hover {
+  background: #4ad4a4;
+  color: #101a32;
+}
+.album-footer {
+  display: none;
+}
+.album-main {
+  width: 100%;
+  height: 60vh; /* 您可以根据需要调整高度，如 70vh */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.album-main:hover .nav-btn {
+  opacity: 1; /* 鼠标悬停时显示箭头 */
+}
+
+/* 企业介绍弹窗特有宽度 */
+.company-custom-modal {
+  width: 500px !important;
+  max-width: 90vw;
+  background: rgba(10, 28, 52, 0.98) !important;
+}
+
+/* 文本正文样式 */
+.company-full-text {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.8;       /* 增加行高，防止文字太挤 */
+  text-align: justify;    /* 两端对齐 */
+  text-indent: 2em;       /* 首行缩进 */
+  padding-top: 10px;
+  opacity: 0.9;
+}
+
+/* 之前定义的通用样式（确保存在） */
+.info-list {
+  padding: 10px 20px;
+  border-left: 1px dashed rgba(74, 212, 164, 0.3);
+  margin-left: 15px;
+}
+
+.info-row .dot {
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  background: #4ad4a4;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4ad4a4;
+}
+
+.custom-scroll {
+  max-height: 70vh;      /* 超过高度自动滚动 */
+  overflow-y: auto;
+}
+/* 如果使用 Grid 布局 */
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 强制分成4列 */
+  gap: 10px; /* 卡片之间的间距 */
+  width: 100%;
+}
+
+/* 如果使用 Flex 布局 */
+.device-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.device-card {
+  flex: 1; /* 每个卡片平分宽度 */
+  margin: 0 5px;
+  text-align: center;
+  /* 其他已有样式... */
+}
+
+.situation-list {
+  padding: 1px;
+}
+
+.situation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0; /* 适当增加间距，让虚线不显得局促 */
+  /* 修改这里：统一为蓝色虚线 */
+  border-bottom: 1px dashed rgba(64, 158, 255, 0.2); 
+  margin-top: 2px;
+}
+
+/* 最后一个条目移除虚线，保持视觉整洁 */
+.situation-row:last-child {
+  border-bottom: none;
+}
+.situation-label {
+  color: #8ec5fc;
+  width: 70px;
+  font-size: 13.6px;
+}
+
+.situation-metrics {
+  flex: 1;
+  color: #00f2fe; /* 亮蓝色，方便一眼看到 */
+  font-size: 13.6px;
+}
+
+.hl {
+  margin-right: 8px;
+  color: #fff;
+}
+.weather-item {
+  padding: 8px 10px;    /* 减小内边距 */
+  display: flex;        /* 建议使用 flex 布局让内容更紧凑 */
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 242, 254, 0.05); /* 保持半透明背景 */
+  border-radius: 4px;
+}
+.situation-conclusion.good {
+  color: #00ff9d; /* 绿色结论 */
+  font-weight: bold;
+   font-size: 13.6px;
+
+}
+
+.weather-tall-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2列 */
+  gap: 15px;
+  padding: 10px;
+}
+
+
+.weather-scroll-content {
+  height: 300px;      /* 必须设置一个固定高度，或者使用 flex: 1 充满父容器 */
+  overflow-y: auto;   /* 开启垂直滚动 */
+  overflow-x: hidden;
+  padding-right: 5px; /* 给滚动条留点空间 */
+}
+
+
+.tall-icon {
+  font-size: 24px; /* 放大图标 */
+  color: #00f2fe;
+  margin-bottom: 5px;
+}
+
+.tall-label {
+  font-size: 16px;
+  color: #8ec5fc;
+  margin-bottom: 5px;
+}
+
+.tall-value {
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+}
+.info-item i {
+  margin-right: 8px;   /* 代替 &nbsp; 增加间距，更规范 */
+  font-size: 16px;     /* 根据需要调整图标大小 */
+  position: relative;
+  top: 1px;            /* 如果肉眼觉得还是高，可以用这个偏移 1-2 像素 */
+  height: 16px;       /* 确保图标占位正确 */
+}
+.situation-metrics {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap; /* 允许换行，而不是撑宽容器 */
+  gap: 5px;
+  font-size: 12px; /* 缩放时可以稍微减小字体 */
+}
+
+.metric-item {
+  white-space: nowrap; /* 保证单项不换行，但整体可换行 */
+}
+.device-img {
+  /* 你可以根据需要调整这两个数值 */
+  width: 400px;   /* 固定宽度 */
+  height: 450px;/*固定高度 */
+  
+  /* ✨ 关键属性：object-fit */
+  /* cover: 图片充满容器，可能会裁剪边缘，但不会变形 */
+  /* contain: 完整显示图片，可能会留白，但不会monitor-box变形 */
+  object-fit:contain; 
+  margin-left: 8%;
+ 
+}
+/* 1. 让外层盒子变成 Flex 布局，方便控制内部填充 */
+.weather-section-extended {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* ✨ 让气象面板吃掉视频下方的所有剩余空间 */
+  overflow: hidden; /* 防止内部溢出产生滚动条 */
+}
+/* 2. ✨ 核心滚动区域 */
+.weather-scroll-content {
+  flex: 1; 
+  overflow: hidden; /* ✨ 去掉原先的 overflow-y: auto; 强制不滚动 */
+  padding-right: 0; /* 去掉之前留给滚动条的间距 */
+  margin-top: 10px;
+}
+
+/* 3. 自定义滚动条样式 (与设备详情保持一致) */
+.weather-scroll-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.weather-scroll-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 242, 254, 0.3); /* 科技蓝透明度 */
+  border-radius: 10px;
+}
+
+.weather-scroll-content::-webkit-scrollbar-track {
+  background: rgba(15, 35, 59, 0.5); /* 深色背景 */
+}
+
+/* 4. 确保 Grid 布局在大屏幕下也能保持整齐 */
+.weather-scroll-content {
+  flex: 1; 
+  overflow-y: auto; /* ✨ 去掉原先的 overflow-y: auto; 强制不滚动 */
+  padding-right: 0; /* 去掉之前留给滚动条的间距 */
+  margin-top: 15px;
+}
+
+/* 5. 调整 item 的高度，确保内容够多以触发滚动 */
+.weather-tall-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 20, 40, 0.6);
+  border: 1px solid rgba(0, 242, 254, 0.15);
+  border-radius: 10px;
+  padding: 5px; /* ✨ 删掉原先的 padding: 20px 10px 和 min-height: 120px，让它自适应高度 */
+  transition: all 0.3s;
+  height: 120px;
+}
+.tall-icon {
+  font-size: 20px;
+  color: #00f2fe;
+  margin-bottom: 2px;
+}
+
+.tall-label {
+  font-size: 13px;
+  color: #8ec5fc;
+  margin-bottom: 2px;
+}
+
+.tall-value {
+  font-size: 14px;
+  color: #fff;
+  font-weight: bold;
+}
+/* 2. 复用设备工况的滚动条样式 */
+.weather-scroll-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.weather-scroll-content::-webkit-scrollbar-thumb {
+  background: rgba(64, 158, 255, 0.4); /* 科技蓝透明度，与设备详情一致 */
+  border-radius: 4px;
+}
+
+.weather-scroll-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(64, 158, 255, 0.6); /* 深色背景 */
 }

@@ -9,6 +9,9 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  css: {
+    postcss: './postcss.config.js', // 指定 PostCSS 配置文件
+  },
   server:{
     proxy: {
       '/api': {
